@@ -1,3 +1,3 @@
-display_name: TikTok AC Video Ad
-short_description: Generate TikTok air-conditioner ad storyboard prompts/images, video prompts, and optional API payloads.
-default_prompt: Create a TikTok air-conditioner ad package from my product images and references. Ask for missing duration, creative direction, and requirements, then deliver a storyboard prompt/image and final video prompt; prepare an API payload if video generation is needed.
+display_name: TikTok Product Video Ad
+short_description: Generate TikTok ad storyboard prompts/images, video prompts, and optional API payloads for AC products or CoreGLP.
+default_prompt: Create a TikTok product ad package from my product images and references. Ask for missing product line, duration, creative direction, claims/compliance limits, and requirements, then deliver a storyboard prompt/image and final video prompt; prepare an API payload if video generation is needed.
