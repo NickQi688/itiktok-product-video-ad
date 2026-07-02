@@ -387,6 +387,13 @@ def run_job(job: dict[str, Any], args: argparse.Namespace, api_key: str) -> dict
     provider = PROVIDERS[provider_name]
     model = str(job.get("model") or provider.model)
     name = str(job.get("name") or f"{provider_name}-{int(time.time())}")
+    if not args.dry_run and not args.confirm_create:
+        raise KieError(
+            "Refusing to create a paid KIE task without --confirm-create. "
+            "Show the user the exact provider/model, mode, duration, aspect ratio, "
+            "resolution, audio setting, reference assets, and payload summary first; "
+            "then rerun with --confirm-create only after explicit same-turn approval."
+        )
     prompt, negative = read_prompt(job, args)
     input_payload = build_input(
         provider_name=provider_name,
@@ -451,6 +458,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-wait", type=int, default=1800)
     parser.add_argument("--generate-audio", action="store_true")
     parser.add_argument("--dry-run", action="store_true", help="Upload refs and build payload, but do not create tasks.")
+    parser.add_argument(
+        "--confirm-create",
+        action="store_true",
+        help="Actually create a KIE task. Use only after the user confirms the exact paid-task settings.",
+    )
     return parser
 
 

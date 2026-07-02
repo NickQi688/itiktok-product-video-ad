@@ -1,9 +1,13 @@
 # KIE.ai Media API
 
-This skill includes a local helper for KIE.ai media generation:
+This skill includes a local helper for KIE.ai media generation.
+
+> **路径说明**：本 skill 默认装在 `~/.newmax/skills/tiktok-product-video-ad/`（NewMax / Claude Code 端）。
+> 同时在 `~/.codex/skills/tiktok-product-video-ad` 建立了一个软链，指向同一份文件，所以 Codex 端也能直接调用。
+> 下面命令里写的 `~/.codex/skills/...` 路径两端都通，等价于 `~/.newmax/skills/tiktok-product-video-ad/scripts/kie_media.py`。
 
 ```bash
-python /Users/a9999/.codex/skills/tiktok-product-video-ad/scripts/kie_media.py \
+python ~/.codex/skills/tiktok-product-video-ad/scripts/kie_media.py \
   --job-config "/path/to/jobs.json"
 ```
 

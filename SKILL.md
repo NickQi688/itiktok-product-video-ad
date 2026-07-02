@@ -30,6 +30,8 @@ Hard safety rule for paid video APIs:
 - Preparing prompts, reference lists, and API payload drafts is safe and does not require confirmation.
 - Submitting to any paid video endpoint must be treated as credit-spending and requires a final confirmation after showing model, duration, resolution, audio setting, reference assets, and payload summary.
 - If the user provides API keys or asks to “connect” video models, do not assume permission to spend credits.
+- If the model, provider, resolution, duration, aspect ratio, generation mode, audio setting, or reference assets are not explicitly chosen by the user, ask for confirmation before submitting. Defaults are recommendations only; they are not consent to create a paid task.
+- A casual approval such as “可以”, “继续”, or “同意” only counts if it is a direct reply to a confirmation block that already listed the exact paid-task settings. Prior approval of the creative concept, script, storyboard, or API setup does not count as approval to spend credits.
 
 Optionally save deliverables into the user's project folders when working in a local workspace.
 
@@ -72,6 +74,8 @@ Before generating deliverables, load the reusable prompt templates in `reference
    - Do not make the user wait for a separate script pass unless requested.
    - Treat script, storyboard prompt, final video prompt, and negative prompt as one generation batch.
    - Produce an action-level shot table with time, visual, action, camera, text/audio, and purpose.
+   - Every script must include clear shot labels. Each shot row must have: `Shot ID`, `画面标签`, `参考素材标签`, `屏幕文字/字幕`, `口播/音效`, and `视频提示词标签`. Do not output an unlabeled narrative-only script.
+   - Use stable labels that other agents can reference later, such as `S01-Hook`, `S02-Product-Closeup`, `S03-Action-Proof`, `S04-Payoff`, and `S05-CTA`. Keep labels short and consistent across the script table, storyboard prompt, final video prompt, and API payload.
    - Split by action nodes, not by broad story beats. Each shot should carry one main action. AC examples: place product, plug in, press panel, display lights up, airflow starts, paper moves, person reacts, remote click, CTA. CoreGLP examples: look at mirror/clothes, place bottle, open cap, pour capsule, drink water, mark calendar, prepare healthy food, confident outfit moment, hero bottle CTA.
    - Produce per-shot video prompts for precise generation.
    - Produce one continuous video prompt.
@@ -86,6 +90,7 @@ Before generating deliverables, load the reusable prompt templates in `reference
    - For CoreGLP, lock bottle shape, cap color, transparent/frosted bottle, teal label, red `METABOLIC BALANCE` stripe, `CoreGLP` wordmark, waist-tape illustration, capsule count, and any visible capsules.
    - Prefer one single storyboard board, not separate images.
    - Keep text minimal to avoid gibberish. Use short labels or numeric callouts.
+   - The storyboard board must visibly label each panel with the matching `Shot ID` and a 2-5 word action label, for example `S01 Heat Hook`, `S02 Product Closeup`, `S03 One-Step Setup`, `S04 Proof`, `S05 CTA`.
 
 5. Final video prompt
    - Tell the user to upload the storyboard image first and product images/detail images as identity references.
@@ -97,7 +102,7 @@ Before generating deliverables, load the reusable prompt templates in `reference
 
 6. Optional video production
    - Enter this stage only when the user explicitly requests actual video generation.
-   - Before any video-generation API call, present a confirmation block and wait for the user to approve. Do not call the API based only on prior intent.
+   - Before any video-generation API call, present a confirmation block and wait for the user to approve. Do not call the API based only on prior intent, API-key setup, storyboard approval, script approval, or a previous-turn “可以”.
    - The confirmation block must include:
      - selected model/provider
      - endpoint/action that will create a paid task
@@ -106,10 +111,15 @@ Before generating deliverables, load the reusable prompt templates in `reference
      - resolution
      - whether audio generation is enabled
      - reference image count and reference video count
+     - exact reference asset list or filenames, with storyboard image first when used
      - expected mode, such as text-to-video, first-frame image-to-video, first+last-frame image-to-video, multimodal reference-to-video
+     - final payload summary, including any provider-specific fields such as `generate_audio`, `web_search`, `return_last_frame`, or `nsfw_checker`
      - note that credits/points may be consumed
-   - If a video-generation API/tool is available and the user confirms, use the generated storyboard image and product images as references.
+     - exact phrase the user should reply with, such as “确认生成这个视频”.
+   - If any confirmation value is unknown, show the recommended value and ask the user to confirm or change it before creating the task.
+   - If a video-generation API/tool is available and the user confirms the exact confirmation block, use the generated storyboard image and product images as references.
    - For KIE.ai providers including omini / Gemini Omni, Seedance 2.0, Seedance 2.0 Fast, GPT Image 2 text-to-image, and GPT Image 2 image-to-image, use `scripts/kie_media.py` and `references/omini-api.md`. `scripts/omini_video.py` remains as a compatibility wrapper for omini.
+   - For KIE.ai scripts, create tasks only with `--confirm-create`; use `--dry-run` for payload checks and previews. Never add `--confirm-create` until the user has approved the confirmation block in the same turn.
    - If no API/tool is configured, deliver an API-ready payload outline instead of pretending the video was generated.
    - Keep provider-specific parameters isolated so they can be swapped later.
    - Preserve the final prompt as the source of truth.
@@ -131,7 +141,30 @@ Never make a tool-specific step mandatory. The workflow must remain useful for C
 Video API confirmation rule:
 - Even when a video API/tool is available, default to producing only the API-ready payload.
 - Only submit the task after the user confirms with an explicit approval such as “确认生成”, “可以消耗积分生成”, “run this video generation”, or equivalent.
+- The approval must be a reply to the exact confirmation block for the current payload. Approval of an idea, storyboard, or API configuration is not enough.
+- Never silently choose between `omini`, `seedance`, and `seedance-fast`. Present a recommendation and ask the user to confirm the exact provider/model.
+- Never silently choose resolution or duration. Present the proposed value, such as `720p` and `8s`, and ask the user to confirm or change it.
+- Never silently enable audio generation. Default to audio off, show it in the confirmation block, and enable it only if confirmed.
 - If there is any ambiguity, ask again instead of submitting.
+
+Required confirmation block:
+
+```text
+【视频生成确认】
+- Provider / model:
+- Paid endpoint/action:
+- Mode:
+- Duration:
+- Aspect ratio:
+- Resolution:
+- Audio:
+- Reference images:
+- Reference videos:
+- Payload notes:
+- Credits/points:
+
+请回复“确认生成这个视频”后，我才会提交任务。
+```
 
 ## Optional Video API Payload Pattern
 

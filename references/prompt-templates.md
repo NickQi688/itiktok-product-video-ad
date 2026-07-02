@@ -7,7 +7,8 @@ Use these templates as starting points. Fill placeholders from product images, p
 ```text
 这是空调还是 CoreGLP？要做几秒？有没有指定创意/卖点/语言/地区/禁止内容？
 需要我只交付“分镜图 + 视频提示词”，还是也尝试生成视频/API payload？
-没有的话我按 TikTok 9:16、8-10 秒、强钩子带货节奏来做。
+如果要直接生成视频，请先确认模型、分辨率、时长、画幅、音频和参考素材；确认前我只准备脚本、分镜图、视频提示词和 payload 草案，不提交付费任务。
+没有的话我按 TikTok 9:16、8-10 秒、强钩子带货节奏来做脚本方案。
 ```
 
 ## 2. Context Summary Template
@@ -44,6 +45,11 @@ Use these templates as starting points. Fill placeholders from product images, p
 - 画幅：
 - 语言/地区：
 - 视频模型：
+- 视频生成模式：
+- 分辨率：
+- 是否生成音频：
+- 参考图片：
+- 参考视频：
 - 禁止内容：
 - 合规边界：
 ```
@@ -108,11 +114,12 @@ CoreGLP 合规边界：
 输出必须包含：
 1. 项目设定
 2. 完整导演脚本
-3. 分镜头脚本表格
-4. 每镜头视频模型提示词
-5. 分镜图生成提示词
-6. 连续视频总提示词
-7. 负面提示词
+3. 镜头标签规范
+4. 分镜头脚本表格
+5. 每镜头视频模型提示词
+6. 分镜图生成提示词
+7. 连续视频总提示词
+8. 负面提示词
 
 规则：
 - 视频时长为 {{duration}} 秒，画幅为 {{aspectRatio}}。
@@ -121,6 +128,12 @@ CoreGLP 合规边界：
   - AC line：炎热/寒冷痛点钩子 -> 免安装/插电/挂墙 -> 遥控或触控开机 -> 冷风/暖风功能证明 -> 舒适反应 -> 转化收口。
   - CoreGLP line：身材/习惯/routine 痛点钩子 -> 产品瓶身/睡前 routine -> 胶囊+水/日历打卡/健康生活动作 -> 更轻松自信的生活方式 payoff -> 产品定格/CTA。
 - 每个镜头必须写清时间、画面、动作、运镜、字幕/口播、目的。
+- 每个镜头必须有稳定镜头标签，不能只写一段叙述。标签格式用 `S01-Hook`、`S02-Product-Closeup`、`S03-Action-Proof`、`S04-Payoff`、`S05-CTA` 这类可复用短标签。
+- 分镜头脚本表格必须包含这些列：`Shot ID`、`时间`、`画面标签`、`参考素材标签`、`画面/构图`、`动作`、`运镜`、`屏幕文字/字幕`、`口播/音效`、`目的`、`视频提示词标签`。
+- `画面标签`必须是 2-6 个字/词的短名称，例如“热到崩溃”“产品亮相”“开盖取胶囊”“冷风证明”“定格 CTA”。
+- `参考素材标签`必须说明该镜头依赖哪些素材，例如“产品主图”“产品拆解图”“UGC生活照”“对标视频节奏”“无需参考素材”。如果有多张参考图，用 `Ref-01`、`Ref-02` 这种编号。
+- `屏幕文字/字幕`必须给出可直接上屏的短句；如果该镜头不需要字幕，写“无字幕”，不要留空。
+- `视频提示词标签`必须和后面的每镜头视频模型提示词一一对应，例如 `Prompt-S01`、`Prompt-S02`。
 - 产品必须始终保持同一件商品。
 - 严格锁定产品外观、颜色、材质、LOGO/标识、标签文字、配件、比例和所有可见细节。
 - AC line 还必须锁定控制面板、LED 显示区、出风口/进风口、格栅、电源线、遥控器、挂架/支架。
@@ -195,6 +208,7 @@ CoreGLP 合规边界：
 - CoreGLP line 不做夸张身材变形，不做直接医疗机制图，除非用户明确要概念动画且合规允许。
 
 文字要求：
+- 每个镜头框必须显示对应 `Shot ID` 和 2-5 个词的画面标签。
 - 只使用极短标签或数字标注。
 - 不得出现乱码、无意义文字、水印。
 - 文字不得遮挡商品。
@@ -253,6 +267,31 @@ CoreGLP 合规边界：
 ```
 
 ## 7. API Payload Template
+
+生成视频前必须先输出并等待用户确认：
+
+```text
+【视频生成确认】
+- Provider / model：{{provider}} / {{model}}
+- Paid endpoint/action：{{endpointOrAction}}
+- Mode：{{generationMode}}
+- Duration：{{duration}} 秒
+- Aspect ratio：{{aspectRatio}}
+- Resolution：{{resolution}}
+- Audio：{{audioSetting}}
+- Reference images：{{referenceImageCount}} 张，{{referenceImageList}}
+- Reference videos：{{referenceVideoCount}} 个，{{referenceVideoList}}
+- Payload notes：{{payloadSummary}}
+- Credits/points：提交后可能消耗积分/点数
+
+请回复“确认生成这个视频”后，我才会提交任务。
+```
+
+规则：
+- 不能在用户确认前调用 createTask / 生成视频 / 提交任务。
+- 用户确认创意、脚本、分镜图、API key 配置，不等于确认消耗积分。
+- 如果模型、分辨率、时长、画幅、音频、参考素材中任意一项未确认，先问用户，不要提交。
+- KIE 脚本预览 payload 用 `--dry-run`；真正创建任务必须加 `--confirm-create`，且只能在用户确认后使用。
 
 ```json
 {
