@@ -40,7 +40,7 @@ Optionally save deliverables into the user's project folders when working in a l
 At the start, ask only what is missing and necessary. If the user already provided enough context, proceed.
 
 Required or strongly preferred:
-- Product line: infer automatically from the content whenever possible. If it is AC, cooling/heating, fan, air conditioner accessory, installation, airflow, compressor, remote temperature, plug-in cooler, or heatwave cooling content, route to AC line. If it is CoreGLP, metabolic balance, supplement bottle, capsule routine, weight-management, body confidence, calendar routine, or fat/metabolism creative content, route to CoreGLP line. Ask only if classification remains genuinely unclear.
+- Product line: infer automatically from the content whenever possible. If it is AC, cooling/heating, fan, air conditioner accessory, installation, airflow, compressor, remote temperature, plug-in cooler, or heatwave cooling content, route to AC line. If it is CoreGLP, metabolic balance, supplement bottle, capsule routine, weight-management, body confidence, slimming/body-goals visuals, tight-jeans/fitting-room/closet/snack-conflict hooks, or fat/metabolism creative content, route to CoreGLP line. Ask only if classification remains genuinely unclear.
 - Duration: default to 8-10 seconds if absent.
 - Aspect ratio: default to 9:16 for TikTok.
 - Product images: product/detail/exploded-view images used to lock identity.
@@ -76,7 +76,7 @@ Before generating deliverables, load the reusable prompt templates in `reference
    - Produce an action-level shot table with time, visual, action, camera, text/audio, and purpose.
    - Every script must include clear shot labels. Each shot row must have: `Shot ID`, `画面标签`, `参考素材标签`, `屏幕文字/字幕`, `口播/音效`, and `视频提示词标签`. Do not output an unlabeled narrative-only script.
    - Use stable labels that other agents can reference later, such as `S01-Hook`, `S02-Product-Closeup`, `S03-Action-Proof`, `S04-Payoff`, and `S05-CTA`. Keep labels short and consistent across the script table, storyboard prompt, final video prompt, and API payload.
-   - Split by action nodes, not by broad story beats. Each shot should carry one main action. AC examples: place product, plug in, press panel, display lights up, airflow starts, paper moves, person reacts, remote click, CTA. CoreGLP examples: look at mirror/clothes, place bottle, open cap, pour capsule, drink water, mark calendar, prepare healthy food, confident outfit moment, hero bottle CTA.
+   - Split by action nodes, not by broad story beats. Each shot should carry one main action. AC examples: place product, plug in, press panel, display lights up, airflow starts, paper moves, person reacts, remote click, CTA. CoreGLP examples: tight-jeans alarm, fitting-room alert, snack temptation conflict, place bottle, open cap, pour capsule, drink water, measuring-tape metaphor, confident outfit moment, hero bottle CTA.
    - Produce per-shot video prompts for precise generation.
    - Produce one continuous video prompt.
    - Produce one storyboard image prompt.
@@ -99,6 +99,14 @@ Before generating deliverables, load the reusable prompt templates in `reference
      - Product/detail images = product consistency.
      - Competitor videos = pacing/reference only, if used.
    - Include exact shot timing for videos under 15 seconds.
+   - Compile the final video prompt as concise natural-language shooting instructions, not as the full internal script document. Do not paste every table, future idea, publishing copy, compliance note, or storyboard-image instruction into the video model prompt.
+   - For Seedance-style image/video/reference-to-video workflows, apply these stability rules:
+     - Assign every reference one primary role: storyboard structure, product identity, model/person identity, motion rhythm, camera rhythm, environment, or audio. State what must not transfer.
+     - If the storyboard image is used as the first/reference image, describe only what the still image cannot show: motion, timing, camera move, light change, audio cue, and preservation constraints.
+     - Use clear `Shot 1 / Shot 2 / Shot 3` or `S01 / S02` labels for cuts inside one generation. Do not rely on long unlabeled paragraphs.
+     - Keep one primary action and one camera move per shot. If a shot needs two unrelated actions, split it.
+     - End each shot on a completed visible beat so the next cut has a stable starting point.
+   - When compressing prompts for API limits, preserve in this order: reference tags/roles, product identity lock, current action and endpoint, shot timing, continuity anchors, camera move, audio cue, then constraints. Delete generic style boosters first.
 
 6. Optional video production
    - Enter this stage only when the user explicitly requests actual video generation.
@@ -146,6 +154,19 @@ Video API confirmation rule:
 - Never silently choose resolution or duration. Present the proposed value, such as `720p` and `8s`, and ask the user to confirm or change it.
 - Never silently enable audio generation. Default to audio off, show it in the confirmation block, and enable it only if confirmed.
 - If there is any ambiguity, ask again instead of submitting.
+
+## Seedance-Oriented Prompt Quality Rules
+
+These rules are adapted into this workflow so agents do not need to install a separate Seedance prompt skill.
+
+- Treat the final video prompt as the prompt for the current clip only. Do not include future parts, draft notes, publishing title/body, long compliance explanations, or image-generation layout instructions.
+- Put the most important subject and action first. Early clauses carry more weight than late caveats.
+- Replace empty words such as “cinematic”, “high quality”, “stunning”, “epic”, “viral style”, “professional”, “8K”, “masterpiece”, and long tag-salad lists with observable production details: shot scale, camera move, light source, material texture, product position, and sound cue.
+- Avoid negative prompt clutter in the main prompt. Use positive locks such as “hands rest still beside the bottle”, “clean unbroken label”, “product remains centered and unchanged”. Keep true negatives in the negative prompt field.
+- For product references, do not re-describe the visible product in contradictory ways. Say that the reference image controls product identity, then only add motion/camera/audio.
+- For reference videos, transfer only pacing, rhythm, shot logic, or motion style. Do not transfer the reference video’s people, brand, product, exact words, room, logo, or visual identity.
+- For product/logo/label stability, make the important detail large enough in frame. Small logos and tiny text drift first; give key label details their own close-up.
+- For multi-shot videos inside one generation, use 2-3 stable shots for 8-10 seconds and 3-4 stable shots for 12-15 seconds when using a Seedance model. If the script has more action nodes, the storyboard can remain detailed, but the final video prompt should group them into fewer generation-friendly cuts unless the user explicitly wants a dense montage.
 
 Required confirmation block:
 
@@ -252,8 +273,8 @@ CoreGLP line:
 4. Bottle/label close-up
 5. Open cap or pour capsule
 6. Drink with water
-7. Calendar/routine/healthy habit proof
-8. Confident lifestyle or outfit payoff
+7. Bold slimming-context visual proof, such as zipper tension, measuring-tape visual metaphor, fitting-room alarm, snack temptation defeated, scale/closet panic without numbers, or mirror confidence reset
+8. Confident lifestyle or outfit payoff, without a visible body-transformation jump
 9. UGC hand-held bottle or desk hero
 10. CTA
 
@@ -290,20 +311,26 @@ Core product identity:
 - capsules visible inside bottle when applicable
 
 CoreGLP usable creative structures:
-- bedtime routine: bottle + water + capsule + nighttime table
+- slimming conflict cold open: tight jeans, zipper panic, fitting-room alert, closet explosion, snack temptation, mirror shock, or social-event outfit deadline
+- bedtime routine: bottle + water + capsule + nighttime table, only when it is not the main creative hook
 - 40+ or adult women’s lifestyle routine: mirror/clothes frustration -> simple evening routine -> calmer morning/confident outfit
 - UGC testimonial style: woman holds bottle and explains why she changed her routine
-- calendar/progress style: Day 1 / Day 30 / routine marks, without hard weight-loss guarantees
+- avoid defaulting to calendar/progress visuals. Use calendar marks only when the user explicitly asks for progress tracking; otherwise prefer more dramatic slimming-context props and conflicts.
 - healthy habit montage: drink water, light meal prep, walk, mirror confidence, product hero
 - product dossier style: bottle, cap, capsules, label close-up, hands holding bottle, water glass
 
 CoreGLP competitor structures that can be borrowed:
 - jeans/clothes not fitting as a pain hook
 - old-photo or album contrast
-- simple routine proof: pour capsule, drink water, mark calendar
+- phone gallery / printed album flashback as the first-second shock, but do not imply a guaranteed body result
+- zipper stuck, waistband tension, mirror selfie side-turn, fitting-room low-angle outfit check, close-to-camera transition, and goal outfit reveal
+- high-calorie food macro, late-night delivery-order scroll, snack pile, fridge glow, or trash-bin rejection as snack-conflict symbols
+- comic `FAT` / snack villain / tiny monster character, only as metaphorical entertainment, not a medical mechanism
+- simple action proof: pour capsule, drink water, reject snack temptation, set aside the measuring tape, choose the goal outfit
 - confidence payoff: outfit try-on, mirror smile, leaving home
 - UGC single-camera rant energy, but without disease or extreme weight-loss claims
 - abstract capsule/routine animation, but avoid medical mechanism certainty
+- When competitor references are available, add a short `对标视频符号借鉴` section to each script. Borrow scenes, pacing, props, camera rhythm, and symbols; never borrow unsupported claims, exact bodies, exact copy, brands, or medical/weight-loss guarantees.
 
 CoreGLP compliance defaults:
 - Treat all weight-loss, fat-burn, GLP, before/after, “one week”, exact kg/lbs, doctor endorsement, clinical, no-side-effect, disease, hormone, visceral-fat, and drug-comparison claims as unsupported unless the user provides approved claims.
@@ -344,7 +371,7 @@ CoreGLP-specific lock checklist:
 - waist/measurement-tape illustration
 - label claims/icons only if visible or provided
 - capsule color/shape if shown
-- water glass, capsule, calendar, handbag, bathroom/bedroom/kitchen lifestyle props only when relevant
+- water glass, capsule, measuring tape, handbag, bathroom/bedroom/kitchen lifestyle props only when relevant
 
 ## Claim Safety
 
