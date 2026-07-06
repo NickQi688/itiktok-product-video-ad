@@ -20,6 +20,7 @@ Default deliverables should be:
 - A storyboard image, when image generation is available or requested.
 - A final video generation prompt.
 - A negative prompt.
+- Copy tags / content labels, including hook type, creative format, product role, reference source, compliance guardrail, CTA, and platform hashtags.
 
 Optional deliverables:
 - Generated video, only when the user explicitly asks for video production and an API/tool is available and configured.
@@ -73,6 +74,15 @@ Before generating deliverables, load the reusable prompt templates in `reference
 3. Generate script and storyboard prompt together
    - Do not make the user wait for a separate script pass unless requested.
    - Treat script, storyboard prompt, final video prompt, and negative prompt as one generation batch.
+   - Every script must include a `文案标签` / `Copy Tags` section before the shot table. It must contain:
+     - `内容形式标签`: e.g. `短剧`, `UGC口播`, `假直播`, `评论回复`, `产品档案`, `3D动画`, `前后反转`, `多素人混剪`.
+     - `前3秒钩子标签`: e.g. `衣柜爆炸`, `拉链警报`, `外卖订单拦截`, `FAT小反派`, `试衣间警报`, `高温痛点`.
+     - `卖点/动作标签`: product action and visible proof, e.g. `开盖倒胶囊`, `水杯同框`, `冷风证明`, `遥控开机`.
+     - `素材/参考标签`: e.g. `产品主图`, `产品拆解图`, `UGC生活照`, `对标04镜面自拍`, `对标17外卖订单`.
+     - `合规标签`: what the copy intentionally avoids, e.g. `无具体减重数字`, `无医生背书`, `无药物替代`, `无身体突变`.
+     - `CTA标签`: e.g. `查看优惠`, `了解更多`, `Shop now`, `CoreGLP ansehen`.
+     - `平台标签/Hashtags`: 3-8 short TikTok-style tags. Use the target language when useful, but avoid unsupported medical or guaranteed-result hashtags.
+   - Copy tags must be specific to the script, not generic. Do not reuse the same tag set across multiple scripts unless the creative format truly matches.
    - Produce an action-level shot table with time, visual, action, camera, text/audio, and purpose.
    - Every script must include clear shot labels. Each shot row must have: `Shot ID`, `画面标签`, `参考素材标签`, `屏幕文字/字幕`, `口播/音效`, and `视频提示词标签`. Do not output an unlabeled narrative-only script.
    - Use stable labels that other agents can reference later, such as `S01-Hook`, `S02-Product-Closeup`, `S03-Action-Proof`, `S04-Payoff`, and `S05-CTA`. Keep labels short and consistent across the script table, storyboard prompt, final video prompt, and API payload.
@@ -88,6 +98,13 @@ Before generating deliverables, load the reusable prompt templates in `reference
    - If image generation is unavailable, give the storyboard prompt clearly so the user or another agent can generate it elsewhere.
    - Use the product image as identity reference in the prompt text: lock exact product shape, color, material, logo/label, visible functional parts, accessories, and proportions.
    - For CoreGLP, lock bottle shape, cap color, transparent/frosted bottle, teal label, red `METABOLIC BALANCE` stripe, `CoreGLP` wordmark, waist-tape illustration, capsule count, and any visible capsules.
+   - Storyboard image prompts must be detailed enough for image models. Include one compact description per panel with: `Shot ID`, camera distance, subject count, product position, hand/body pose, key prop positions, background, and text label.
+   - Do not ask the image model to invent full readable paragraph text inside panels. Use only short labels and reserve detailed copy for the script.
+   - For product-accuracy sensitive shots, use product-only closeups, large labels, clean frontal angles, and stable surfaces. Avoid tiny products in busy scenes unless the shot is not for product recognition.
+   - For human shots, constrain anatomy: one adult subject unless otherwise specified, natural shoulders, arms visible from shoulder to wrist if hands are shown, five fingers per hand, no crossed/hidden hands around the product unless necessary, hands not covering the logo/label.
+   - If a shot only needs a product action, prefer hands-only closeups over full-body people to reduce arm/finger errors.
+   - Keep product and hands separated enough for the model: bottle upright on a table or held with one hand around the sides, label facing camera, fingers not wrapping over the wordmark or red stripe.
+   - Add an explicit `Storyboard Negative Prompt` after the storyboard prompt. It should mention product deformation, wrong label, extra fingers, missing fingers, twisted wrists, bent arms, duplicated limbs, face distortion, text gibberish, and unreadable small logos.
    - Prefer one single storyboard board, not separate images.
    - Keep text minimal to avoid gibberish. Use short labels or numeric callouts.
    - The storyboard board must visibly label each panel with the matching `Shot ID` and a 2-5 word action label, for example `S01 Heat Hook`, `S02 Product Closeup`, `S03 One-Step Setup`, `S04 Proof`, `S05 CTA`.
@@ -347,6 +364,9 @@ Every output must include product consistency rules:
 - Do not invent hidden features, ingredients, accessories, certifications, functions, badges, claims, or mechanisms unless visible or provided.
 - If reference images conflict, prioritize the clearest product/detail/exploded-view image.
 - If using visual effects, keep them subtle and product-line appropriate: AC airflow should not become sci-fi; CoreGLP wellness/routine visuals should not become medical-treatment effects.
+- For image generation prompts, explicitly say `reference product image controls product identity; do not redesign product`. Repeat the 3-5 most important identity locks near the relevant product panels, not only in a separate global paragraph.
+- For storyboard boards, product identity is more important than perfect text rendering. If label text cannot be reliably rendered, require a clean large `CoreGLP` wordmark approximation only in product closeups and use short external panel labels for all other text.
+- When hands interact with a product, specify the exact hand action and visible anatomy: one hand holds bottle sides, one hand opens cap, palm under bottle, fingers relaxed, five fingers, natural wrist. Avoid vague prompts such as “hands holding product beautifully”.
 
 Air-conditioner-specific lock checklist:
 - body silhouette: wall-mounted horizontal unit, vertical unit, portable desktop unit, or accessory shape
