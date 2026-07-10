@@ -57,7 +57,7 @@ Good concise question when context is missing:
 
 ## Workflow
 
-Before generating deliverables, load the reusable prompt templates in `references/prompt-templates.md` when the task requires any concrete script, storyboard, image prompt, video prompt, or API payload.
+Before generating deliverables, load the reusable prompt templates in `references/prompt-templates.md` when the task requires any concrete script, storyboard, image prompt, video prompt, or API payload. For CoreGLP scripts, hooks, voiceover, subtitles, captions, or publishing copy, also load `references/coreglp-copy-patterns.md` and adapt its conversion patterns without copying unsupported claims.
 
 1. Gather context
    - Inspect product images if provided.
@@ -348,6 +348,15 @@ CoreGLP competitor structures that can be borrowed:
 - UGC single-camera rant energy, but without disease or extreme weight-loss claims
 - abstract capsule/routine animation, but avoid medical mechanism certainty
 - When competitor references are available, add a short `对标视频符号借鉴` section to each script. Borrow scenes, pacing, props, camera rhythm, and symbols; never borrow unsupported claims, exact bodies, exact copy, brands, or medical/weight-loss guarantees.
+
+CoreGLP copywriting reference routing:
+- Use `references/coreglp-copy-patterns.md` for German seasonal hooks, wardrobe fantasy, Jo-Jo frustration, future pacing, emotional payoff, CTA rhythm, and safe rewrites.
+- Also use it for anti-quick-fix hooks, step-by-step transformation framing, plant-based routine positioning, inside-out metaphors, progress-over-perfection language, and gym-cost contrast.
+- Preserve the emotional mechanism, not the source claim. Convert exact weight/time promises, unverified clinical statistics, multiplier claims, detox language, guaranteed appetite suppression, fabricated order counts, liver-healing claims, and no-rebound guarantees into strong but supportable language.
+- Hard claims are evidence-locked, not merely user-approved. Before using an exact kg/lbs result, fixed timeframe, guarantee, clinical participant count, organ-healing claim, no-rebound claim, or causal fat-loss mechanism, require an evidence pack containing the exact approved wording, study/report source, population, dosage, duration, outcome definition, market, and written legal/platform approval. Cite the evidence ID beside the claim in the script document.
+- If any evidence-pack field is missing, mark the source phrase `高风险参考，不可直接发布` and automatically generate an aggressive non-quantified alternative. Never infer substantiation from a competitor ad, product label graphic, testimonial, landing-page paragraph, or the user's preference for a stronger promise.
+- Never imitate Cyrillic/Unicode character substitution used to disguise restricted words. Output normal readable German.
+- Rotate structures across a batch; do not make every script a calendar, wardrobe, testimonial, or before/after variation.
 
 CoreGLP compliance defaults:
 - Treat all weight-loss, fat-burn, GLP, before/after, “one week”, exact kg/lbs, doctor endorsement, clinical, no-side-effect, disease, hormone, visceral-fat, and drug-comparison claims as unsupported unless the user provides approved claims.
